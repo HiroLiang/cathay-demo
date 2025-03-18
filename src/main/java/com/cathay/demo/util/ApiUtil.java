@@ -14,12 +14,14 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+/**
+ * Generic rest api util
+ */
 @Slf4j
 @Service
 public class ApiUtil {
 
     private final RestTemplate restTemplate;
-
 
     public ApiUtil(@Autowired RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

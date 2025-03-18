@@ -10,6 +10,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+/**
+ * 包 Rest Controller：
+ * 1. 若有新增 log 表可以記錄 api 被呼叫時間
+ * 2. 統一 Response 長相，前端可依據 code 判斷請求狀況
+ */
 @Slf4j
 @Aspect
 @Component

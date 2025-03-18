@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * CurrencyNameContrast 基礎 DB 交互
+ */
 @Service
 public class CurrencyService {
 

@@ -35,6 +35,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.List;
 
+/**
+ * 製作 Client，實作為 Rest Template
+ */
 @Slf4j
 @Configuration
 public class RestTemplateConfig {

@@ -2,7 +2,6 @@ package com.cathay.demo.controller;
 
 import com.cathay.demo.db.entity.CurrencyNameContrast;
 import com.cathay.demo.model.annotation.LogExecutionTime;
-import com.cathay.demo.model.dto.BaseRs;
 import com.cathay.demo.model.dto.CurrencyContrastDto;
 import com.cathay.demo.service.CurrencyService;
 import lombok.extern.slf4j.Slf4j;

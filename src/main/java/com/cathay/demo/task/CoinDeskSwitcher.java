@@ -8,6 +8,8 @@ import com.cathay.demo.model.exception.GenericException;
 import com.cathay.demo.model.part.Task;
 import com.cathay.demo.service.CurrencyService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 轉換器：
+ * 1. 實作 Task 讓 class 被執行時可用 Processor 包交易
+ */
 public class CoinDeskSwitcher implements Task<CoinDeskInfoDto> {
 
     private final CurrencyService currencyService;
@@ -23,8 +29,7 @@ public class CoinDeskSwitcher implements Task<CoinDeskInfoDto> {
 
     private final List<CurrencyNameContrast> contrasts = new ArrayList<>();
 
-    private CoinDeskInfoDto result = new CoinDeskInfoDto();
-
+    private final CoinDeskInfoDto result = new CoinDeskInfoDto();
 
     public CoinDeskSwitcher(CurrencyService currencyService, CoinDeskDto coinDeskDto) {
         this.currencyService = currencyService;
@@ -44,6 +49,11 @@ public class CoinDeskSwitcher implements Task<CoinDeskInfoDto> {
     @Override
     public CoinDeskInfoDto getData() {
         return this.result;
+    }
+
+    public CoinDeskSwitcher formatRateToUSD() {
+        processRate();
+        return this;
     }
 
     private void processDate() {
@@ -88,5 +98,24 @@ public class CoinDeskSwitcher implements Task<CoinDeskInfoDto> {
         throw new GenericException(RequestStatus.DB_FAIL, "Data not found");
     }
 
+    private void processRate() {
+        List<CoinDeskInfoDto.CurrencyInfo> currencyInfo = this.result.getCurrencyInfo();
+
+        CoinDeskInfoDto.CurrencyInfo usdInfo = null;
+
+        for (CoinDeskInfoDto.CurrencyInfo currency : currencyInfo) {
+            if (currency.getCode().equals("USD")) usdInfo = currency;
+        }
+
+        if (usdInfo == null) return;
+
+        double usdRate = usdInfo.getRate();
+
+        for (CoinDeskInfoDto.CurrencyInfo currency : currencyInfo) {
+            BigDecimal rate = new BigDecimal(currency.getRate() / usdRate)
+                    .setScale(10, RoundingMode.HALF_UP);
+            currency.setRate(rate.doubleValue());
+        }
+    }
 
 }

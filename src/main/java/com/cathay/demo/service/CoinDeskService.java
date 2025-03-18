@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * Call 外部 Api coin desk 取得 json
+ */
 @Slf4j
 @Service
 public class CoinDeskService {
