@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class FailedTask implements Delayed {
 
     private int retryCount = 0;
@@ -30,6 +28,11 @@ public class FailedTask implements Delayed {
     public FailedTask(List<RetryableTask<?>> failedTasks) {
         this.failedTasks = failedTasks;
         this.executeTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30);
+    }
+
+    public FailedTask(long shiftTime, TimeUnit unit, List<RetryableTask<?>> failedTasks) {
+        this.failedTasks = failedTasks;
+        this.executeTime = System.currentTimeMillis() + unit.toMillis(shiftTime);
     }
 
     public FailedTask setDelay(long delayInMinutes) {

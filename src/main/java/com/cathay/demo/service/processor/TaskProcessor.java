@@ -43,7 +43,8 @@ public class TaskProcessor {
         } catch (RuntimeException e) {
             // 需要回滾時，將需要重試的任務拋給 FailedTaskProcessor 排程
             if (!retryableTasks.isEmpty())
-                FailedTaskProcessor.add(new FailedTask(0, 30, retryableTasks));
+                FailedTaskProcessor.add(new FailedTask(retryableTasks));
+//                FailedTaskProcessor.add(new FailedTask(3, TimeUnit.SECONDS, retryableTasks));
 
             // 觸發異常回滾
             throw new RuntimeException(e);
