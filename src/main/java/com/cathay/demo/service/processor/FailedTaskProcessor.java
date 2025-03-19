@@ -10,7 +10,8 @@ import java.util.concurrent.DelayQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * 失敗任務 Queue 的重複執行者，有需要可外開 API 啟動, 終止此物件 (start, stop)
+ * 1. 失敗任務 Queue 的重複執行者，有需要可外開 API 啟動, 終止此物件 (start, stop)
+ * 2. 實務上可持久化未成功的任務，當此 Server 對卡夫卡, MQ 等都無法接通時，或系統異常狀況結束時，要有位置可以取得未執行的任務
  */
 @Slf4j
 @Service
@@ -101,6 +102,6 @@ public class FailedTaskProcessor {
 
     private void alert(FailedTask task) {
         log.warn("Task: {} failed over 3 times.", task.getClass().getSimpleName());
-        // TODO 實作通知管理人員，亦可用連線池異步執行
+        // TODO 實作通知管理人員，可對失敗三次任務做額外持久化處理(亦可用連線池異步執行)
     }
 }
