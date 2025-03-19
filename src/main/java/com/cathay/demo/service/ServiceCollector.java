@@ -1,5 +1,8 @@
 package com.cathay.demo.service;
 
+import com.cathay.demo.service.currency.CoinDeskService;
+import com.cathay.demo.service.currency.CurrencyService;
+import com.cathay.demo.service.processor.FailedTaskProcessor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,5 +20,7 @@ public class ServiceCollector {
     private final CurrencyService currencyService;
 
     private final CoinDeskService coinDeskService;
+
+    private final FailedTaskProcessor failedTaskProcessor;
 
 }

@@ -4,7 +4,7 @@ import com.cathay.demo.model.dto.CurrencyContrastDto;
 import com.cathay.demo.model.enumeration.RequestStatus;
 import com.cathay.demo.model.enumeration.TaskTag;
 import com.cathay.demo.model.exception.GenericException;
-import com.cathay.demo.service.CurrencyService;
+import com.cathay.demo.service.currency.CurrencyService;
 import com.cathay.demo.service.ServiceCollector;
 import com.cathay.demo.task.StandardTask;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +39,18 @@ public class CurrencyContrastGetter extends StandardTask<CurrencyContrastDto> {
         try {
             this.result = new CurrencyContrastDto(currencyService.getContrastByCode(code));
             createStore(TaskTag.RS_STATUS, RequestStatus.OK);
-        } catch (Exception e) {
-            // 若失敗，設置異常
-            log.warn("Code: {} not found data", code, e);
-            createStore(TaskTag.RS_STATUS, RequestStatus.DB_FAIL);
-        }
 
-        createStore(TaskTag.RS_OBJECT, result);
+            // 可能為 Response
+            storeResponse(RequestStatus.OK, result);
+        } catch (Exception e) {
+            log.warn("Code: {} not found data", code, e);
+            // 若是查無資料，依舊拋出
+            if (e instanceof GenericException) throw (GenericException) e;
+
+            // 若是 DB 異常，任務失敗，並記錄 Response
+            forceFailed();
+            storeResponse(RequestStatus.DB_FAIL, result);
+        }
     }
 
     @Override

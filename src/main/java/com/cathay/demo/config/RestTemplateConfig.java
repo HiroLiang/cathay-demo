@@ -69,11 +69,13 @@ public class RestTemplateConfig {
             final SSLConnectionSocketFactory factory = new SSLConnectionSocketFactory(sslContext,
                     NoopHostnameVerifier.INSTANCE);
 
+            // 註冊 https 只允許限定的權證，http 則不限制
             final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory> create()
                     .register("https", factory)
                     .register("http", new PlainConnectionSocketFactory())
                     .build();
 
+            // 限制 max connection
             final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
             connectionManager.setMaxTotal(MAX_TOTAL_CONNECTIONS);
             connectionManager.setDefaultMaxPerRoute(MAX_CONNECTIONS_PER_ROUTE);
@@ -82,12 +84,13 @@ public class RestTemplateConfig {
                     .setConnectionManager(connectionManager)
                     .build();
 
-            // set connection timeout
+            // 設定請求逾時時間
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
             requestFactory.setConnectionRequestTimeout(30000);
             requestFactory.setConnectTimeout(10000);
 
+            // 製作 rest template 並設置 Charset
             RestTemplate restTemplate = new RestTemplate(requestFactory);
             setCharset(restTemplate);
 

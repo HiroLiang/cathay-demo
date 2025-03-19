@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * 標準 Chain List，簡單使用 Array List
+ * @param <T> 使用時指定要 Chain 的型別
+ */
 public class GenericChainList<T extends Chainable> implements ChainList<T> {
 
     protected final List<T> list = new ArrayList<>();

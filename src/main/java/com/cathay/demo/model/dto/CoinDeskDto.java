@@ -1,11 +1,18 @@
 package com.cathay.demo.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+/**
+ * Coin Desk API 回傳物件
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CoinDeskDto {
 
     private TimeDTO time;
@@ -14,6 +21,8 @@ public class CoinDeskDto {
     private Map<String, CurrencyDTO> bpi;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class TimeDTO {
         private String updated;
         private String updatedISO;
@@ -22,6 +31,8 @@ public class CoinDeskDto {
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class CurrencyDTO {
         private String code;
         private String symbol;

@@ -2,6 +2,9 @@ package com.cathay.demo.model.enumeration;
 
 import lombok.Getter;
 
+/**
+ * 定義 Response 異常的可能狀態，用來回傳前端確認 API 是否正常 (無論是否拿到 Response)
+ */
 @Getter
 public enum RequestStatus {
     OK("0000"),

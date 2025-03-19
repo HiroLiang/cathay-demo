@@ -1,4 +1,4 @@
-package com.cathay.demo.service;
+package com.cathay.demo.service.currency;
 
 import com.cathay.demo.model.dto.CoinDeskDto;
 import com.cathay.demo.util.ApiUtil;

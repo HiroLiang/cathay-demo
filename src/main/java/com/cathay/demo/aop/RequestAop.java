@@ -22,6 +22,7 @@ public class RequestAop {
 
     @Around("within(@org.springframework.web.bind.annotation.RestController *)")
     public Object handleRequestException(ProceedingJoinPoint joinPoint) {
+        // TODO 若有新增表，此處可加軌跡記錄 (若有需要，最好有認證機制確認執行者身份，如: JWT)
         try {
             ResponseEntity<?> result = (ResponseEntity<?>) joinPoint.proceed();
             log.debug("info: {}", result);

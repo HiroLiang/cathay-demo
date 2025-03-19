@@ -4,8 +4,9 @@ import com.cathay.demo.model.annotation.LogExecutionTime;
 import com.cathay.demo.model.dto.BaseRs;
 import com.cathay.demo.model.dto.CurrencyContrastDto;
 import com.cathay.demo.service.ServiceCollector;
-import com.cathay.demo.service.TaskProcessor;
+import com.cathay.demo.service.processor.TaskProcessor;
 import com.cathay.demo.task.currency.CurrencyContrastAllData;
+import com.cathay.demo.task.currency.CurrencyContrastCacheAsRs;
 import com.cathay.demo.task.currency.CurrencyContrastGetter;
 import com.cathay.demo.task.currency.CurrencyContrastUpdate;
 import com.cathay.demo.task.response.ResponseBuilder;
@@ -34,7 +35,12 @@ public class CurrencyController {
     @RequestMapping("/get-all/contrast")
     public ResponseEntity<BaseRs<List<CurrencyContrastDto>>> getAllContrast() {
         ResponseBuilder<List<CurrencyContrastDto>> builder = new ResponseBuilder<>();
-        processor.process(new CurrencyContrastAllData(serviceCollector).chaining()
+        CurrencyContrastAllData allDataTask = new CurrencyContrastAllData(serviceCollector);
+        processor.process(allDataTask.asResponse()
+                .chaining()
+                // 若是因 DB I/O 異常 (非無資料)，從 Cache 先取得資料
+                .chain(new CurrencyContrastCacheAsRs(CurrencyContrastCacheAsRs.Purpose.ALL)
+                        .doIf(allDataTask, task -> !task.isSuccess()))
                 .chain(builder)
                 .build());
         return ResponseEntity.ok(builder.getData());
@@ -45,7 +51,13 @@ public class CurrencyController {
     @RequestMapping("/get/contrast/{code}")
     public ResponseEntity<BaseRs<CurrencyContrastDto>> getContrast(@PathVariable(name = "code") String code) {
         ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
-        processor.process(new CurrencyContrastGetter(serviceCollector).setCode(code).chaining()
+        CurrencyContrastGetter getter = new CurrencyContrastGetter(serviceCollector);
+        processor.process(getter.setCode(code).asResponse()
+                .chaining()
+                // 若是因 DB I/O 異常 (非無資料)，從 Cache 先取得資料
+                .chain(new CurrencyContrastCacheAsRs(CurrencyContrastCacheAsRs.Purpose.CODE)
+                        .setCode(code)
+                        .doIf(getter, task -> !task.isSuccess()))
                 .chain(builder)
                 .build());
         return ResponseEntity.ok(builder.getData());
@@ -58,7 +70,7 @@ public class CurrencyController {
         ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
         processor.process(new CurrencyContrastUpdate(serviceCollector, CurrencyContrastUpdate.Purpose.INSERT, dto)
                 .chaining()
-                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()))
+                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()).asResponse())
                 .chain(builder)
                 .build());
         return ResponseEntity.ok(builder.getData());
@@ -71,7 +83,7 @@ public class CurrencyController {
         ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
         processor.process(new CurrencyContrastUpdate(serviceCollector, CurrencyContrastUpdate.Purpose.UPDATE, dto)
                 .chaining()
-                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()))
+                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()).asResponse())
                 .chain(builder)
                 .build());
         return ResponseEntity.ok(builder.getData());
