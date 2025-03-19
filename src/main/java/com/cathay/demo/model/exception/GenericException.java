@@ -3,6 +3,9 @@ package com.cathay.demo.model.exception;
 import com.cathay.demo.model.enumeration.RequestStatus;
 import lombok.Getter;
 
+/**
+ * 自用的標準化 RuntimeException
+ */
 @Getter
 public class GenericException extends RuntimeException {
 

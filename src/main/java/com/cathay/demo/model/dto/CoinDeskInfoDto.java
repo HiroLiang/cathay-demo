@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Coin Desk 轉換後回傳物件
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

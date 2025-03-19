@@ -3,7 +3,7 @@ package com.cathay.demo.task.currency;
 import com.cathay.demo.model.dto.CurrencyContrastDto;
 import com.cathay.demo.model.enumeration.RequestStatus;
 import com.cathay.demo.model.exception.GenericException;
-import com.cathay.demo.service.CurrencyService;
+import com.cathay.demo.service.currency.CurrencyService;
 import com.cathay.demo.service.ServiceCollector;
 import com.cathay.demo.task.RetryableTask;
 
@@ -16,6 +16,7 @@ public class CurrencyContrastUpdate extends RetryableTask<Void> {
     private final CurrencyContrastDto contrast;
 
     public CurrencyContrastUpdate(ServiceCollector collector, Purpose purpose, CurrencyContrastDto contrast) {
+        super(collector);
         this.currencyService = collector.getCurrencyService();
         this.purpose = purpose;
         this.contrast = contrast;

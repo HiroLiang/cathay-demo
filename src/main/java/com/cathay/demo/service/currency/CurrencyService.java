@@ -1,4 +1,4 @@
-package com.cathay.demo.service;
+package com.cathay.demo.service.currency;
 
 import com.cathay.demo.db.entity.CurrencyNameContrast;
 import com.cathay.demo.db.repo.CurrencyNameContrastRepository;

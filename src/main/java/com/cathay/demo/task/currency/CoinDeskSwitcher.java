@@ -4,8 +4,8 @@ import com.cathay.demo.db.entity.CurrencyNameContrast;
 import com.cathay.demo.model.dto.CoinDeskDto;
 import com.cathay.demo.model.dto.CoinDeskInfoDto;
 import com.cathay.demo.model.enumeration.RequestStatus;
+import com.cathay.demo.model.enumeration.TaskTag;
 import com.cathay.demo.model.exception.GenericException;
-import com.cathay.demo.service.CurrencyService;
 import com.cathay.demo.task.StandardTask;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,28 +23,32 @@ import java.util.Map;
 @Slf4j
 public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
 
-    private final CurrencyService currencyService;
-
-    private final CoinDeskDto coinDeskDto;
+    private CoinDeskDto coinDeskDto;
 
     private final List<CurrencyNameContrast> contrasts = new ArrayList<>();
 
     private final CoinDeskInfoDto result = new CoinDeskInfoDto();
 
-    public CoinDeskSwitcher(CurrencyService currencyService, CoinDeskDto coinDeskDto) {
-        this.currencyService = currencyService;
-        this.coinDeskDto = coinDeskDto;
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     protected void doAction() {
-        if (this.coinDeskDto == null) throw new GenericException(RequestStatus.SYSTEM_ERROR, "Modify not allowed");
+        // 取得 Store 中的 Response
+        this.coinDeskDto = receive(TaskTag.COIN_DESK_RESPONSE, CoinDeskDto.class);
 
-        log.info("Processing CoinDesk Switcher");
+        // 取得 Store 中 Currency 中文對照表
+        this.contrasts.addAll(receive(TaskTag.CURRENCY_CONTRAST_DATA_ALL, List.class));
+
+        // 若找不到 (失敗或沒打)
+        if (this.coinDeskDto == null) throw new GenericException(RequestStatus.SYSTEM_ERROR, "Response not found.");
+
+        // 解析更新日期
         processDate();
 
-        initCurrencyContrast();
+        // 解析 Coin Desk 回應中所有幣別與匯率
         processCurrency();
+
+        // 可能為 Response
+        storeResponse(RequestStatus.OK, result);
     }
 
     @Override
@@ -74,11 +78,6 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
                         contrast.getDescription(), contrast.getChineseName(), currency.getRateFloat()));
             }
         }
-    }
-
-    private void initCurrencyContrast() {
-        this.contrasts.clear();
-        this.contrasts.addAll(currencyService.getAllContrasts());
     }
 
     private CurrencyNameContrast getContrastByCode(String code) {

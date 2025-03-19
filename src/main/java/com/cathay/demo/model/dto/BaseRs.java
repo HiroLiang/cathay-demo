@@ -3,6 +3,10 @@ package com.cathay.demo.model.dto;
 import com.cathay.demo.model.enumeration.RequestStatus;
 import lombok.Data;
 
+/**
+ * 統一回傳外殼型別，若是 Rs 忘了指定，Aop 會包
+ * @param <T> 實際想回傳的物件
+ */
 @Data
 public class BaseRs<T> {
 

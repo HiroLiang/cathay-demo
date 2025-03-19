@@ -1,4 +1,4 @@
-package com.cathay.demo.service;
+package com.cathay.demo.service.processor;
 
 import com.cathay.demo.task.FailedTask;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +9,9 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * 失敗任務 Queue 的重複執行者，有需要可外開 API 啟動, 終止此物件 (start, stop)
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class FailedTaskProcessor {
     }
 
     public void retry() {
-        while (isProcessing()) {
+        while (processing) {
             try {
                 // 阻塞線程等待
                 FailedTask task = failedTasks.take();
@@ -56,12 +59,16 @@ public class FailedTaskProcessor {
         }
     }
 
+    public void add(FailedTask task) {
+        this.failedTasks.add(task);
+    }
+
     public void stopRetry() {
-        if (isProcessing()) setProcessing(false);
+        if (processing) setProcessing(false);
     }
 
     public void startRetry() {
-        if (isProcessing()) return;
+        if (processing) return;
         setProcessing(true);
         startThread();
     }

@@ -8,6 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 失敗任務物件，提供
+ * 1. 執行時間
+ * 2. 執行次數
+ * 3. 失敗任務執行狀態確認
+ */
 @Slf4j
 @Data
 @NoArgsConstructor
