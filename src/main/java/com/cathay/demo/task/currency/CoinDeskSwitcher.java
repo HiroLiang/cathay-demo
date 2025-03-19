@@ -67,15 +67,27 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
 
     private void processCurrency() {
         CurrencyNameContrast baseCurrency = getContrastByDesc(this.coinDeskDto.getChartName());
-        this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo(baseCurrency.getCode(),
-                        baseCurrency.getDescription(), baseCurrency.getChineseName(), 1));
+
+        if (baseCurrency != null) {
+            this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo(baseCurrency.getCode(),
+                    baseCurrency.getDescription(), baseCurrency.getChineseName(), 1));
+        } else {
+            this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo("", this.coinDeskDto.getChartName(),
+                    "", 1));
+        }
+
         if (this.coinDeskDto.getBpi() != null) {
             Map<String, CoinDeskDto.CurrencyDTO> bpi = this.coinDeskDto.getBpi();
             for (String key : bpi.keySet()) {
                 CoinDeskDto.CurrencyDTO currency = bpi.get(key);
                 CurrencyNameContrast contrast = getContrastByCode(currency.getCode());
-                this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo(contrast.getCode(),
-                        contrast.getDescription(), contrast.getChineseName(), currency.getRateFloat()));
+                if (contrast != null) {
+                    this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo(contrast.getCode(),
+                            contrast.getDescription(), contrast.getChineseName(), currency.getRateFloat()));
+                } else {
+                    this.result.getCurrencyInfo().add(new CoinDeskInfoDto.CurrencyInfo(currency.getCode(),
+                            currency.getDescription(), "", currency.getRateFloat()));
+                }
             }
         }
     }
@@ -84,14 +96,14 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
         for (CurrencyNameContrast contrast : contrasts) {
             if (contrast.getCode().equals(code)) return contrast;
         }
-        throw new GenericException(RequestStatus.DB_FAIL, "Data not found");
+        return null;
     }
 
     private CurrencyNameContrast getContrastByDesc(String description) {
         for (CurrencyNameContrast contrast : contrasts) {
             if (contrast.getDescription().equals(description)) return contrast;
         }
-        throw new GenericException(RequestStatus.DB_FAIL, "Data not found");
+        return null;
     }
 
 }
