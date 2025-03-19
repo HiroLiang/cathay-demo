@@ -17,7 +17,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @RequiredArgsConstructor
 public class FailedTaskProcessor {
 
-    private final DelayQueue<FailedTask> failedTasks = new DelayQueue<>();
+    private final TaskProcessor taskProcessor;
+
+    private static final DelayQueue<FailedTask> failedTasks = new DelayQueue<>();
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -37,7 +39,7 @@ public class FailedTaskProcessor {
                 // 阻塞線程等待
                 FailedTask task = failedTasks.take();
                 try {
-                    task.retry();
+                    taskProcessor.retry(task);
                 } catch (Exception e) {
                     log.warn("Retry Task: {} failed {} times.", task.getClass().getSimpleName(), task.getRetryCount(), e);
                 }
@@ -59,8 +61,8 @@ public class FailedTaskProcessor {
         }
     }
 
-    public void add(FailedTask task) {
-        this.failedTasks.add(task);
+    public static void add(FailedTask task) {
+        FailedTaskProcessor.failedTasks.add(task);
     }
 
     public void stopRetry() {

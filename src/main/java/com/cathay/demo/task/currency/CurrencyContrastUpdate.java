@@ -16,7 +16,6 @@ public class CurrencyContrastUpdate extends RetryableTask<Void> {
     private final CurrencyContrastDto contrast;
 
     public CurrencyContrastUpdate(ServiceCollector collector, Purpose purpose, CurrencyContrastDto contrast) {
-        super(collector);
         this.currencyService = collector.getCurrencyService();
         this.purpose = purpose;
         this.contrast = contrast;

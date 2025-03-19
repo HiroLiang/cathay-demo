@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
 
     private CoinDeskDto coinDeskDto;
 
-    private final List<CurrencyNameContrast> contrasts = new ArrayList<>();
+    private final Map<String, CurrencyNameContrast> contrasts = new HashMap<>();
 
     private final CoinDeskInfoDto result = new CoinDeskInfoDto();
 
@@ -36,7 +36,10 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
         this.coinDeskDto = receive(TaskTag.COIN_DESK_RESPONSE, CoinDeskDto.class);
 
         // 取得 Store 中 Currency 中文對照表
-        this.contrasts.addAll(receive(TaskTag.CURRENCY_CONTRAST_DATA_ALL, List.class));
+        List<CurrencyNameContrast> entities = receive(TaskTag.CURRENCY_CONTRAST_DATA_ALL, List.class);
+        for (CurrencyNameContrast entity : entities) {
+            this.contrasts.put(entity.getCode(), entity);
+        }
 
         // 若找不到 (失敗或沒打)
         if (this.coinDeskDto == null) throw new GenericException(RequestStatus.SYSTEM_ERROR, "Response not found.");
@@ -93,14 +96,11 @@ public class CoinDeskSwitcher extends StandardTask<CoinDeskInfoDto> {
     }
 
     private CurrencyNameContrast getContrastByCode(String code) {
-        for (CurrencyNameContrast contrast : contrasts) {
-            if (contrast.getCode().equals(code)) return contrast;
-        }
-        return null;
+        return contrasts.get(code);
     }
 
     private CurrencyNameContrast getContrastByDesc(String description) {
-        for (CurrencyNameContrast contrast : contrasts) {
+        for (CurrencyNameContrast contrast : contrasts.values()) {
             if (contrast.getDescription().equals(description)) return contrast;
         }
         return null;

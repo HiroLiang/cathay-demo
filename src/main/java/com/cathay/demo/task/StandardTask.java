@@ -22,7 +22,7 @@ public abstract class StandardTask<T> implements Processable<T>, Storable<TaskTa
     private final Map<TaskTag, Object> storage = new HashMap<>();
 
     @Getter
-    private volatile boolean success = false;
+    protected volatile boolean success = false;
 
     private volatile boolean forceFailed = false;
 
