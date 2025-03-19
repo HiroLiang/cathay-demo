@@ -24,7 +24,7 @@ public class RequestAop {
     public Object handleRequestException(ProceedingJoinPoint joinPoint) {
         try {
             ResponseEntity<?> result = (ResponseEntity<?>) joinPoint.proceed();
-            log.debug("result: {}", result);
+            log.debug("info: {}", result);
             if (result.getBody() instanceof BaseRs<?>) return result;
 
             return ResponseEntity.ok(new BaseRs<>(result.getBody()));

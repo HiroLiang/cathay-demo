@@ -1,63 +1,89 @@
 package com.cathay.demo.controller;
 
-import com.cathay.demo.db.entity.CurrencyNameContrast;
 import com.cathay.demo.model.annotation.LogExecutionTime;
+import com.cathay.demo.model.dto.BaseRs;
 import com.cathay.demo.model.dto.CurrencyContrastDto;
-import com.cathay.demo.service.CurrencyService;
+import com.cathay.demo.service.ServiceCollector;
+import com.cathay.demo.service.TaskProcessor;
+import com.cathay.demo.task.currency.CurrencyContrastAllData;
+import com.cathay.demo.task.currency.CurrencyContrastGetter;
+import com.cathay.demo.task.currency.CurrencyContrastUpdate;
+import com.cathay.demo.task.response.ResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/currency")
 public class CurrencyController {
 
-    private final CurrencyService currencyService;
+    private final TaskProcessor processor;
 
-    public CurrencyController(CurrencyService currencyService) {
-        this.currencyService = currencyService;
+    private final ServiceCollector serviceCollector;
+
+    public CurrencyController(TaskProcessor processor, ServiceCollector serviceCollector) {
+        this.processor = processor;
+        this.serviceCollector = serviceCollector;
     }
 
     @GetMapping
     @LogExecutionTime
     @RequestMapping("/get-all/contrast")
-    public ResponseEntity<List<CurrencyContrastDto>> getAllContrast() {
-        List<CurrencyNameContrast> contrasts = currencyService.getAllContrasts();
-        return ResponseEntity.ok(contrasts.stream()
-                .map(CurrencyContrastDto::new)
-                .collect(Collectors.toList()));
+    public ResponseEntity<BaseRs<List<CurrencyContrastDto>>> getAllContrast() {
+        ResponseBuilder<List<CurrencyContrastDto>> builder = new ResponseBuilder<>();
+        processor.process(new CurrencyContrastAllData(serviceCollector).chaining()
+                .chain(builder)
+                .build());
+        return ResponseEntity.ok(builder.getData());
     }
 
     @GetMapping
     @LogExecutionTime
     @RequestMapping("/get/contrast/{code}")
-    public ResponseEntity<CurrencyContrastDto> getContrast(@PathVariable(name = "code") String code) {
-        return ResponseEntity.ok(new CurrencyContrastDto(currencyService.getContrastByCode(code)));
+    public ResponseEntity<BaseRs<CurrencyContrastDto>> getContrast(@PathVariable(name = "code") String code) {
+        ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
+        processor.process(new CurrencyContrastGetter(serviceCollector).setCode(code).chaining()
+                .chain(builder)
+                .build());
+        return ResponseEntity.ok(builder.getData());
     }
 
     @PostMapping
     @LogExecutionTime
     @RequestMapping("/add/contrast")
-    public ResponseEntity<CurrencyContrastDto> addContrast(@RequestBody CurrencyContrastDto dto) {
-        return ResponseEntity.ok(new CurrencyContrastDto(currencyService.addContrast(dto)));
+    public ResponseEntity<BaseRs<CurrencyContrastDto>> addContrast(@RequestBody CurrencyContrastDto dto) {
+        ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
+        processor.process(new CurrencyContrastUpdate(serviceCollector, CurrencyContrastUpdate.Purpose.INSERT, dto)
+                .chaining()
+                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()))
+                .chain(builder)
+                .build());
+        return ResponseEntity.ok(builder.getData());
     }
 
     @PutMapping
     @LogExecutionTime
     @RequestMapping("/update/contrast")
-    public ResponseEntity<CurrencyContrastDto> updateContrast(@RequestBody CurrencyContrastDto dto) {
-        return ResponseEntity.ok(new CurrencyContrastDto(currencyService.updateContrast(dto)));
+    public ResponseEntity<BaseRs<CurrencyContrastDto>> updateContrast(@RequestBody CurrencyContrastDto dto) {
+        ResponseBuilder<CurrencyContrastDto> builder = new ResponseBuilder<>();
+        processor.process(new CurrencyContrastUpdate(serviceCollector, CurrencyContrastUpdate.Purpose.UPDATE, dto)
+                .chaining()
+                .chain(new CurrencyContrastGetter(serviceCollector).setCode(dto.getCode()))
+                .chain(builder)
+                .build());
+        return ResponseEntity.ok(builder.getData());
     }
 
     @DeleteMapping
     @LogExecutionTime
     @RequestMapping("/delete/contrast/{code}")
     public ResponseEntity<Void> deleteContrast(@PathVariable(name = "code") String code) {
-        currencyService.deleteContrast(code);
+        processor.process(new CurrencyContrastUpdate(serviceCollector, CurrencyContrastUpdate.Purpose.DELETE,
+                new CurrencyContrastDto(code, "", ""))
+                .chaining().build());
         return ResponseEntity.ok().build();
     }
 
