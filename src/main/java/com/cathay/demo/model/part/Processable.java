@@ -1,6 +1,6 @@
 package com.cathay.demo.model.part;
 
-public interface Task<T> {
+public interface Processable<T> extends Runnable {
 
     void process();
 
