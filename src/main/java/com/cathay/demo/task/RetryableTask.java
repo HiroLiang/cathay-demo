@@ -1,7 +1,5 @@
 package com.cathay.demo.task;
 
-import com.cathay.demo.service.ServiceCollector;
-import com.cathay.demo.service.processor.FailedTaskProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -12,28 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class RetryableTask<T> extends StandardTask<T> {
 
-    private final FailedTaskProcessor failedTaskProcessor;
-
-    protected RetryableTask(ServiceCollector collector) {
-        this.failedTaskProcessor = collector.getFailedTaskProcessor();
-    }
-
     @Override
     public void process() {
-        try {
-            super.process();
-        } catch (Exception e) {
-            log.warn("Process Task: {} failed.", this.getClass().getSimpleName(), e);
-            failedTaskProcessor.add(new FailedTask(0, 30, this));
-        }
+        super.process();
     }
 
     public void retry() {
-        try {
-            super.process();
-        } catch (Exception e) {
-            log.warn("Retry Task: {} failed.", this.getClass().getSimpleName(), e);
-        }
+        super.process();
     }
 
 }

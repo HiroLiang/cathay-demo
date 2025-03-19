@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -24,10 +25,10 @@ public class FailedTask implements Delayed {
 
     private long executeTime;
 
-    private RetryableTask<?> failedTask;
+    private List<RetryableTask<?>> failedTasks;
 
-    public FailedTask(RetryableTask<?> failedTask) {
-        this.failedTask = failedTask;
+    public FailedTask(List<RetryableTask<?>> failedTasks) {
+        this.failedTasks = failedTasks;
         this.executeTime = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30);
     }
 
@@ -38,11 +39,17 @@ public class FailedTask implements Delayed {
 
     public void retry() {
         this.retryCount++;
-        this.failedTask.retry();
+        for (RetryableTask<?> retryableTask : failedTasks) {
+            retryableTask.retry();
+        }
     }
 
     public boolean isSuccess() {
-        return failedTask.isSuccess();
+        boolean success = true;
+        for (RetryableTask<?> retryableTask : failedTasks) {
+            if (!retryableTask.isSuccess()) success = false;
+        }
+        return success;
     }
 
     @Override
