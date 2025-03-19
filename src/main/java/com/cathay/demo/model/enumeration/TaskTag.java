@@ -2,6 +2,7 @@ package com.cathay.demo.model.enumeration;
 
 import com.cathay.demo.db.entity.CurrencyNameContrast;
 import com.cathay.demo.model.dto.CoinDeskDto;
+import com.cathay.demo.model.dto.CoinDeskInfoDto;
 import lombok.Getter;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public enum TaskTag {
      * Coin Desk 外部 API 相關
      */
     COIN_DESK_RESPONSE(CoinDeskDto.class),
+    COIN_DESK_NEW_CURRENCY(CoinDeskInfoDto.CurrencyInfo.class),
     ;
 
     private final Class<?> clazz;
