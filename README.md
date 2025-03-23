@@ -5,7 +5,7 @@ Nityo - Cathay interview test
 ---
 
 - Simple APIs
-- Call third party API and geet JSON
+- Call third party API and get JSON
 
 ### 2. My Structure Design
 ---
